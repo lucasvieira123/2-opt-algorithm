@@ -4,14 +4,13 @@ package tools;
 import api.Aresta;
 import api.Grafo;
 import api.Vertice;
-
 import java.util.ArrayList;
 
 /**
  * Created by Lucas Vieira on 30/05/17.
  */
 
-public class MatrizDeCusto {
+public  class MatrizDeCusto {
     public static final int custoInfinito = 999;
     private int[][] matrizDistancia;
     private String tipoValor, tipoNome;
@@ -24,7 +23,7 @@ public class MatrizDeCusto {
         mGrafo = new Grafo();
     }
 
-    public String getTipoValor() {
+    public final String getTipoValor() {
         return tipoValor;
     }
 
@@ -50,37 +49,63 @@ public class MatrizDeCusto {
 
     public void addCusto(int i, int j, int custo) {
         matrizDistancia[i][j] = custo;
+        Vertice verticeOrigem;
+        Vertice verticeDestino;
+        boolean saoIguais = false;
 
-        Vertice verticeOrigem = new Vertice(i);
-        Vertice verticeDestino = new Vertice(j);
-        mGrafo.addVertice(verticeOrigem);
-        mGrafo.addVertice(verticeDestino);
-        mGrafo.addAresta(new Aresta(verticeOrigem,verticeDestino,custo));
+        if (i == j) {
+            saoIguais = true;
+        }
+
+        if (mGrafo.contain(i)) {
+            verticeOrigem = mGrafo.getVertice(i);
+        } else {
+            verticeOrigem = new Vertice(i);
+            mGrafo.addVertice(verticeOrigem);
+        }
+
+        if (mGrafo.contain(j)) {
+            verticeDestino = mGrafo.getVertice(j);
+        } else {
+            verticeDestino = new Vertice(j);
+            mGrafo.addVertice(verticeDestino);
+        }
+
+
+
+        if (!saoIguais) {
+            Aresta aresta = new Aresta(verticeOrigem, verticeDestino, custo);
+            mGrafo.addAresta(aresta);
+            verticeOrigem.addArestaSaindo(aresta);
+            verticeDestino.addArestaEntrando(aresta);
+        }
+
     }
 
-    public int getCusto(int i, int j){
+    public int getCusto(int i, int j) {
         return matrizDistancia[i][j];
     }
 
-    public Grafo getGrafo (){
+    public Grafo getGrafo() {
         return mGrafo;
     }
 
 
-
-    public int getCustoInicial(){
+    public int getCustoInicial() {
         int soma = 0;
-        for(int i = 0; i<n; i++){
-            if(i==matrizDistancia.length-1){
-                soma+= matrizDistancia[i][0];
-            }else { soma+= matrizDistancia[i][i+1];}
+        for (int i = 0; i < n; i++) {
+            if (i == matrizDistancia.length - 1) {
+                soma += matrizDistancia[i][0];
+            } else {
+                soma += matrizDistancia[i][i + 1];
+            }
 
         }
         return soma;
     }
 
 
-    public void print(){
+    public void print() {
         for (int i = 0; i < matrizDistancia.length; i++) {
             for (int j = 0; j < matrizDistancia[i].length; j++) {
                 System.out.print(matrizDistancia[i][j] + " ");
@@ -89,32 +114,39 @@ public class MatrizDeCusto {
         }
     }
 
-    public ArrayList<Aresta> getTrilaInicial() {
+    public ArrayList<Vertice> construirTrilhaInicial() {
+        ArrayList<Vertice> trilhaVertices = new ArrayList<>();
 
-        ArrayList<Aresta> trila = new ArrayList<>();
-        Aresta aresta;
+
         for(int i =0; i<n; i++){
-            if(i==matrizDistancia.length-1){
-
-                aresta =new Aresta(new Vertice(i), new Vertice(0), getCusto(i,0));
-            }else {
-                aresta =new Aresta(new Vertice(i), new Vertice(i+1), getCusto(i,i+1));
-
-            }
-            trila.add(aresta);
+            trilhaVertices.add(new Vertice(i));
         }
-        return trila;
+
+        return atribuirAsArestas(trilhaVertices);
     }
 
-    public int custoFromTrila(ArrayList<Aresta>trila){
-        int custoTotal = 0;
+    private ArrayList<Vertice> atribuirAsArestas(ArrayList<Vertice> trilhaVertices) {
+        Vertice verticeOrigem, verticeDestino;
+        Aresta aresta;
 
-       for(Aresta aresta : trila){
-           custoTotal += aresta.getCusto();;
-       }
-       return custoTotal;
+        for(int i =0; i<trilhaVertices.size(); i++){
+            if(i==trilhaVertices.size()-1){
+                verticeOrigem = trilhaVertices.get(i);
+                verticeDestino = trilhaVertices.get(0);
+                 aresta = new Aresta(verticeOrigem,verticeDestino, getCusto(i,0));
+            }else {
+                verticeOrigem = trilhaVertices.get(i);
+                verticeDestino = trilhaVertices.get(i+1);
+                 aresta = new Aresta(verticeOrigem,verticeDestino, getCusto(i,i+1));
+            }
+
+            verticeOrigem.addArestaSaindo(aresta);
+            verticeDestino.addArestaEntrando(aresta);
+
+
+        }
+        return trilhaVertices;
     }
-
 
 
 }

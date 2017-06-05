@@ -7,18 +7,18 @@ import java.util.ArrayList;
  */
 public class Vertice {
 
-    private int id;
+    private int mId;
     private ArrayList<Aresta> arestasEntrando = new ArrayList<>();
     private ArrayList<Aresta> arestasSaindo = new ArrayList<>();
 
 
     public Vertice(int id) {
-        this.id = id;
+        this.mId = id;
     }
 
 
     public int getId() {
-        return id;
+        return mId;
     }
 
     public ArrayList<Aresta> getArestasSaindo() {
@@ -29,5 +29,16 @@ public class Vertice {
         return arestasEntrando;
     }
 
+    public void setId (int id){
+        mId = id;
+    }
 
+
+    public void addArestaSaindo(Aresta arestaSaindo) {
+        arestasSaindo.add(arestaSaindo);
+    }
+
+    public void addArestaEntrando(Aresta arestaEntrando) {
+        arestasEntrando.add(arestaEntrando);
+    }
 }
