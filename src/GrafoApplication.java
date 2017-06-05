@@ -5,7 +5,6 @@ import javafx.application.Application;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import tools.MatrizDeCusto;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,7 +16,6 @@ import java.util.*;
  * Created by Lucas Vieira on 29/05/17.
  */
 public final class GrafoApplication extends Application {
-
 
     private File file;
     private Stage primaryStage;
