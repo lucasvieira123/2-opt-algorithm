@@ -1,9 +1,6 @@
 
 package tools;
 
-import api.Aresta;
-import api.Grafo;
-import api.Vertice;
 import java.util.ArrayList;
 
 /**
@@ -15,12 +12,10 @@ public  class MatrizDeCusto {
     private int[][] matrizDistancia;
     private String tipoValor, tipoNome;
     private int n;
-    private Grafo mGrafo;
 
     public MatrizDeCusto(int n) {
         this.n = n;
         matrizDistancia = new int[n][n];
-        mGrafo = new Grafo();
     }
 
     public final String getTipoValor() {
@@ -49,47 +44,12 @@ public  class MatrizDeCusto {
 
     public void addCusto(int i, int j, int custo) {
         matrizDistancia[i][j] = custo;
-        Vertice verticeOrigem;
-        Vertice verticeDestino;
-        boolean saoIguais = false;
-
-        if (i == j) {
-            saoIguais = true;
-        }
-
-        if (mGrafo.contain(i)) {
-            verticeOrigem = mGrafo.getVertice(i);
-        } else {
-            verticeOrigem = new Vertice(i);
-            mGrafo.addVertice(verticeOrigem);
-        }
-
-        if (mGrafo.contain(j)) {
-            verticeDestino = mGrafo.getVertice(j);
-        } else {
-            verticeDestino = new Vertice(j);
-            mGrafo.addVertice(verticeDestino);
-        }
-
-
-
-        if (!saoIguais) {
-            Aresta aresta = new Aresta(verticeOrigem, verticeDestino, custo);
-            mGrafo.addAresta(aresta);
-            verticeOrigem.addArestaSaindo(aresta);
-            verticeDestino.addArestaEntrando(aresta);
-        }
 
     }
 
     public int getCusto(int i, int j) {
         return matrizDistancia[i][j];
     }
-
-    public Grafo getGrafo() {
-        return mGrafo;
-    }
-
 
     public int getCustoInicial() {
         int soma = 0;
@@ -114,38 +74,35 @@ public  class MatrizDeCusto {
         }
     }
 
-    public ArrayList<Vertice> construirTrilhaInicial() {
-        ArrayList<Vertice> trilhaVertices = new ArrayList<>();
+    public ArrayList<Integer> construirTrilhaInicial() {
+        ArrayList<Integer> cicloDeVertices = new ArrayList<>();
 
 
         for(int i =0; i<n; i++){
-            trilhaVertices.add(new Vertice(i));
+            cicloDeVertices.add(i);
         }
 
-        return atribuirAsArestas(trilhaVertices);
+        return cicloDeVertices;
     }
 
-    private ArrayList<Vertice> atribuirAsArestas(ArrayList<Vertice> trilhaVertices) {
-        Vertice verticeOrigem, verticeDestino;
-        Aresta aresta;
 
-        for(int i =0; i<trilhaVertices.size(); i++){
-            if(i==trilhaVertices.size()-1){
-                verticeOrigem = trilhaVertices.get(i);
-                verticeDestino = trilhaVertices.get(0);
-                 aresta = new Aresta(verticeOrigem,verticeDestino, getCusto(i,0));
+
+    public int custoDoCiclo(ArrayList<Integer>ciclo ){
+        //todo fazer uma soma do jeito que o professor disse, sem precisar passar por todo ciclo.
+        int custoDoCiclo = 0;
+
+        for(int i=0;i<ciclo.size();i++){
+            if(i==ciclo.size()-1){
+                int verticeAtual = ciclo.get(i);
+                int verticeProximo = ciclo.get(0);
+                custoDoCiclo=custoDoCiclo+this.getCusto(verticeAtual,verticeProximo);
             }else {
-                verticeOrigem = trilhaVertices.get(i);
-                verticeDestino = trilhaVertices.get(i+1);
-                 aresta = new Aresta(verticeOrigem,verticeDestino, getCusto(i,i+1));
+            int verticeAtual = ciclo.get(i);
+            int verticeProximo = ciclo.get(i+1);
+            custoDoCiclo=custoDoCiclo+this.getCusto(verticeAtual,verticeProximo);
             }
-
-            verticeOrigem.addArestaSaindo(aresta);
-            verticeDestino.addArestaEntrando(aresta);
-
-
         }
-        return trilhaVertices;
+        return custoDoCiclo;
     }
 
 
