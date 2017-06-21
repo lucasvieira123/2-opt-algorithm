@@ -187,27 +187,56 @@ public final class GrafoApplication extends Application {
                 String primeiraLinha = linha;
                 primeiraLinha = primeiraLinha.trim();
 
-                n = Integer.valueOf(primeiraLinha.substring(2, 4));
+                if(primeiraLinha.contains("N=")){
+                    int quantidadeDeCaracter = "N=".length();
+                   int indexInicial= primeiraLinha.indexOf("N=");
+
+                    n = Integer.valueOf(primeiraLinha.substring(indexInicial+quantidadeDeCaracter,
+                            indexInicial+quantidadeDeCaracter+3).trim());
+                }
+                if(primeiraLinha.contains("Tipo=")){
+                    int quantidadeDeCaracter = "Tipo=".length();
+                    int indexInicial= primeiraLinha.indexOf("Tipo=");
+                    valorTipo = primeiraLinha.substring(indexInicial+quantidadeDeCaracter,
+                            indexInicial+quantidadeDeCaracter+1).trim();
+                }
+
+               /* n = Integer.valueOf(primeiraLinha.substring(2, 4));
                 valorTipo = primeiraLinha.substring(11, 12).trim();
-                tipoNome = primeiraLinha.substring(14).trim();
+                tipoNome = primeiraLinha.substring(14).trim();*/
                 matrizDeCusto = new MatrizDeCusto(n);
 
                 linha = br.readLine();
             }
 
             while (linha != null && !linha.equals("")) {
+                linha = linha.trim();
 
                 String[] arrayDeCustosDaLinha = linha.trim().split("\\s+");
+                ArrayList<String> listDeCustosDaLinha = new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha));
+
 
                 for (int valorDaColunaAtual = 0; valorDaColunaAtual < n; valorDaColunaAtual++) {
-                    int custoAresta = Integer.valueOf(arrayDeCustosDaLinha[valorDaColunaAtual]);
-                    matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
+                    try {
+                        int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
+                        matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
+                    }catch (IndexOutOfBoundsException e){
+
+                        linha = br.readLine();
+                        linha = linha.trim();
+                        arrayDeCustosDaLinha = linha.trim().split("\\s+");
+                        listDeCustosDaLinha.addAll(new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha)));
+                        int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
+                        matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
+                    }
+
                 }
 
                 linha = br.readLine();
                 valorDaLinhaAtual++;
 
             }
+            matrizDeCusto.print();
 
 
         } catch (Exception e) {
