@@ -43,11 +43,18 @@ public final class GrafoApplication extends Application {
         System.out.println("Custo atual:"+mCustoAtual);
 
         printPercurso(mCicloDeMudancas);
+        long startTime = System.currentTimeMillis();
+
         for( int y =0; y< 100 ; y++){
 
                 if(estaGerandoMesmoCustoCincoVezes()){
+                    long endTime   = System.currentTimeMillis();
+                    long totalTime = endTime - startTime;
+                    System.out.println("TempoTotal:"+totalTime+"ms");
+
                     System.exit(0);
                 }
+
             for(int i = 1; i<n; i++){
                 //  outloop:
                 // for(int verticePossivel : verticesNaoConsecutivos(mCicloDeMudancas.get(i))){
