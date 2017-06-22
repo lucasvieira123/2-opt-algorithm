@@ -2,10 +2,8 @@ import javafx.application.Application;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import tools.MatrizDeCusto;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+
+import java.io.*;
 import java.util.*;
 
 
@@ -24,6 +22,10 @@ public final class GrafoApplication extends Application {
     private ArrayList<Integer> mCicloDeMudancas =new ArrayList<>();
     private ArrayList<Integer> mCicloBackUp = new ArrayList<>();
     private int mPossivelCusto;
+    private boolean jaPassouPeloZero;
+    private boolean zeroFoiAdicionado;
+    private int custoAtualBackUp;
+    private int countDeMesmoCusto;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -32,7 +34,7 @@ public final class GrafoApplication extends Application {
         File arquivo = abrirChooserParaSelecionarArquivo();
 
         mMatrizDeCusto = criarMatrizDeCusto(arquivo);
-       // mMatrizDeCusto.print();
+        // mMatrizDeCusto.print();
 
 
         mCicloBackUp = (ArrayList<Integer>) mMatrizDeCusto.construirTrilhaInicial().clone();
@@ -41,55 +43,72 @@ public final class GrafoApplication extends Application {
         System.out.println("Custo atual:"+mCustoAtual);
 
         printPercurso(mCicloDeMudancas);
-        //todo temos que fazer um critério de parada para que ele n rode 100 vezes sem precisar já que o melhor custo encontrado é 159
-    for( int y =0; y< 100 ; y++){
-        for(int i = 1; i<n; i++){
-      //  outloop:
-           // for(int verticePossivel : verticesNaoConsecutivos(mCicloDeMudancas.get(i))){
-            for(int j =i+1 ; j< mCicloDeMudancas.size();j++){
-                if(!saoConsecutivo(mCicloDeMudancas.get(i),mCicloDeMudancas.get(j))){
-                int verticePossivel = mCicloDeMudancas.get(j);
+        for( int y =0; y< 100 ; y++){
 
-                int verticeDoCiclo = mCicloDeMudancas.get(i);
-                realizarTroca(verticeDoCiclo, verticePossivel);
-                System.out.print("troca de "+verticeDoCiclo);
-                System.out.print(" com "+ verticePossivel);
-                System.out.println();
-                System.out.println("trilha com a troca");
-                printPercurso(mCicloDeMudancas);
-                mPossivelCusto = mMatrizDeCusto.custoDoCiclo(mCicloDeMudancas);
-                System.out.println("Custou com a troca: "+mPossivelCusto);
-                System.out.println("Custo atual:"+mCustoAtual);
-
-                if(mPossivelCusto < mCustoAtual){
-                    System.out.print("Novo ciclo encontrado:");
-                    printPercurso(mCicloDeMudancas);
-                    System.out.println("Novo Custo:" +mPossivelCusto);
-                    mCustoAtual= mPossivelCusto;
-
-                    mCicloBackUp = clone(mCicloDeMudancas);
-                 //   break outloop;
-
-                }else {
-                    mCicloDeMudancas = clone(mCicloBackUp);
-                    System.out.println("Volta para o ciclo");
-                    printPercurso(mCicloBackUp);
+                if(estaGerandoMesmoCustoCincoVezes()){
+                    System.exit(0);
                 }
+            for(int i = 1; i<n; i++){
+                //  outloop:
+                // for(int verticePossivel : verticesNaoConsecutivos(mCicloDeMudancas.get(i))){
+                for(int j =i+1 ; j< mCicloDeMudancas.size();j++){
+                    if(!saoConsecutivo(mCicloDeMudancas.get(i),mCicloDeMudancas.get(j))){
+                        int verticePossivel = mCicloDeMudancas.get(j);
+
+                        int verticeDoCiclo = mCicloDeMudancas.get(i);
+                        realizarTroca(verticeDoCiclo, verticePossivel);
+                        System.out.print("troca de "+verticeDoCiclo);
+                        System.out.print(" com "+ verticePossivel);
+                        System.out.println();
+                        System.out.println("trilha com a troca");
+                        printPercurso(mCicloDeMudancas);
+                        mPossivelCusto = mMatrizDeCusto.custoDoCiclo(mCicloDeMudancas);
+                        System.out.println("Custou com a troca: "+mPossivelCusto);
+                        System.out.println("Custo atual:"+mCustoAtual);
+
+                        if(mPossivelCusto < mCustoAtual){
+                            System.out.print("Novo ciclo encontrado:");
+                            printPercurso(mCicloDeMudancas);
+                            System.out.println("Novo Custo:" +mPossivelCusto);
+                            mCustoAtual= mPossivelCusto;
+
+                            mCicloBackUp = clone(mCicloDeMudancas);
+                            //   break outloop;
+
+                        }else {
+                            mCicloDeMudancas = clone(mCicloBackUp);
+                            System.out.println("Volta para o ciclo");
+                            printPercurso(mCicloBackUp);
+                        }
+                    }
                 }
-            }
             }
             System.out.println("ciclo final:");
             printPercurso(mCicloBackUp);
             System.out.println("custo final:");
             System.out.println(mCustoAtual);
+
         }
+    }
+
+    private boolean estaGerandoMesmoCustoCincoVezes() {
+
+        if(custoAtualBackUp==mCustoAtual && mCustoAtual!=0){
+            countDeMesmoCusto++;
+        }
+        if(countDeMesmoCusto==5){
+            return true;
+        }
+
+        custoAtualBackUp = mCustoAtual;
+        return false;
     }
 
     private boolean saoConsecutivo(Integer vertice1, Integer vertice2) {
         if(vertice1==vertice2){
             return true;
         }
-       int indexDoVertice1 = getIndexDesseElementoNoArrayList(vertice1,mCicloDeMudancas);
+        int indexDoVertice1 = getIndexDesseElementoNoArrayList(vertice1,mCicloDeMudancas);
 
         if(indexDoVertice1==0){// elemento 0 do verto os consecultivos sao elemento 9 e o elemento 2
             if(mCicloDeMudancas.get(indexDoVertice1+1)==vertice2){
@@ -156,14 +175,14 @@ public final class GrafoApplication extends Application {
     Integer getIndexDesseElementoNoArrayList(int vertice, ArrayList<Integer> arrayList){
         for(int i =0; i<arrayList.size();i++){
             if(vertice==arrayList.get(i)){
-               return i;
+                return i;
             }
         }
         return null;
     }
 
     private void realizarTroca(int verticeDoCiclo , int verticePossivel) {
-     ArrayList<Integer> cicloComTroca = new ArrayList<>();
+        ArrayList<Integer> cicloComTroca = new ArrayList<>();
         int indexVerticeDoCiclo = getIndexDesseElementoNoArrayList(verticeDoCiclo,mCicloDeMudancas);
         int indexVerticePossivel = getIndexDesseElementoNoArrayList(verticePossivel,mCicloDeMudancas);
         Collections.swap(mCicloDeMudancas,indexVerticeDoCiclo,indexVerticePossivel);
@@ -171,12 +190,8 @@ public final class GrafoApplication extends Application {
 
 
 
-
-
-
     private MatrizDeCusto criarMatrizDeCusto(File arquivo) throws FileNotFoundException {
         MatrizDeCusto matrizDeCusto = null;
-        int valorDaLinhaAtual = 0;
 
         BufferedReader br = new BufferedReader(new FileReader(arquivo));
 
@@ -189,7 +204,7 @@ public final class GrafoApplication extends Application {
 
                 if(primeiraLinha.contains("N=")){
                     int quantidadeDeCaracter = "N=".length();
-                   int indexInicial= primeiraLinha.indexOf("N=");
+                    int indexInicial= primeiraLinha.indexOf("N=");
 
                     n = Integer.valueOf(primeiraLinha.substring(indexInicial+quantidadeDeCaracter,
                             indexInicial+quantidadeDeCaracter+3).trim());
@@ -201,48 +216,142 @@ public final class GrafoApplication extends Application {
                             indexInicial+quantidadeDeCaracter+1).trim();
                 }
 
-               /* n = Integer.valueOf(primeiraLinha.substring(2, 4));
-                valorTipo = primeiraLinha.substring(11, 12).trim();
-                tipoNome = primeiraLinha.substring(14).trim();*/
                 matrizDeCusto = new MatrizDeCusto(n);
 
                 linha = br.readLine();
-            }
-
-            while (linha != null && !linha.equals("")) {
-                linha = linha.trim();
-
-                String[] arrayDeCustosDaLinha = linha.trim().split("\\s+");
-                ArrayList<String> listDeCustosDaLinha = new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha));
-
-
-                for (int valorDaColunaAtual = 0; valorDaColunaAtual < n; valorDaColunaAtual++) {
-                    try {
-                        int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
-                        matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
-                    }catch (IndexOutOfBoundsException e){
-
-                        linha = br.readLine();
-                        linha = linha.trim();
-                        arrayDeCustosDaLinha = linha.trim().split("\\s+");
-                        listDeCustosDaLinha.addAll(new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha)));
-                        int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
-                        matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
-                    }
-
-                }
-
-                linha = br.readLine();
-                valorDaLinhaAtual++;
 
             }
-            matrizDeCusto.print();
+
+            if(valorTipo.contains("3")) {
+                System.out.printf("Tipo 3");
+                return criarMatrizDeCustoParaTipo3(linha,matrizDeCusto,br);
+
+            }else if(valorTipo.contains("1")){
+                System.out.println("Tipo 1");
+               return criarMatrizDeCustoParaTipo1(linha,matrizDeCusto,br);
+
+            }else if (valorTipo.contains("2")){
+                System.out.println("Tipo 2");
+                return criarMatrizDeCustoParaTipo2(linha,matrizDeCusto,br);
+
+            }
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        return matrizDeCusto;
+    }
+
+
+
+
+
+    private MatrizDeCusto criarMatrizDeCustoParaTipo3(String linha, MatrizDeCusto matrizDeCusto, BufferedReader br) throws IOException {
+
+        int valorDaLinhaAtual = 0;
+
+        while (linha != null && !linha.equals("")) {
+            linha = linha.trim();
+
+            String[] arrayDeCustosDaLinha = linha.trim().split("\\s+");
+            ArrayList<String> listDeCustosDaLinha = new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha));
+
+
+
+            for (int valorDaColunaAtual = 0; valorDaColunaAtual < n; valorDaColunaAtual++) {
+                try {
+                    int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
+                    matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
+                } catch (IndexOutOfBoundsException e) {
+
+                    linha = br.readLine();
+                    linha = linha.trim();
+                    arrayDeCustosDaLinha = linha.trim().split("\\s+");
+                    listDeCustosDaLinha.addAll(new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha)));
+                    int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
+                    matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
+                }
+
+            }
+
+            linha = br.readLine();
+            valorDaLinhaAtual++;
+
+        }
+        return matrizDeCusto;
+
+    }
+
+    private MatrizDeCusto criarMatrizDeCustoParaTipo2(String linha, MatrizDeCusto matrizDeCusto, BufferedReader br) {
+      /*  while (linha != null && !linha.equals("")) {
+            linha = linha.trim();
+
+            String[] arrayDeCustosDaLinha = linha.trim().split("\\s+");
+            ArrayList<String> listDeCustosDaLinha = new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha));
+
+
+            for (int valorDaColunaAtual = 0; valorDaColunaAtual < n; valorDaColunaAtual++) {
+                try {
+                    int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
+                    matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
+                } catch (IndexOutOfBoundsException e) {
+
+                    linha = br.readLine();
+                    linha = linha.trim();
+                    arrayDeCustosDaLinha = linha.trim().split("\\s+");
+                    listDeCustosDaLinha.addAll(new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha)));
+                    int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
+                    matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
+                }
+
+            }
+            n--;
+            linha = br.readLine();
+            valorDaLinhaAtual++;
+
+        }*/
+      return matrizDeCusto;
+    }
+
+    private MatrizDeCusto criarMatrizDeCustoParaTipo1(String linha, MatrizDeCusto matrizDeCusto, BufferedReader br) throws IOException {
+
+        System.out.printf("Tipo 1\n");
+        while (linha != null && !linha.equals("")) {
+            linha = linha.trim();
+
+            String[] arrayDeCustosDaLinha = linha.trim().split("\\s+");
+            ArrayList<String> listDeCustosDaLinha = new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha));
+
+            int quantidadeDeZeroPorLinha =1;
+            for (int indexLinhaAtual = 0; indexLinhaAtual < n; indexLinhaAtual++) {
+
+                int indexColunaAtual = 0;
+
+                for(int index =0 ; index < listDeCustosDaLinha.size(); index++){
+                    indexColunaAtual=quantidadeDeZeroPorLinha+index;
+
+                    int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(index));
+                    matrizDeCusto.addCusto(indexLinhaAtual,indexColunaAtual,custoAresta);
+                    matrizDeCusto.addCusto(indexColunaAtual,indexLinhaAtual,custoAresta);
+                }
+                quantidadeDeZeroPorLinha++;
+
+                linha = br.readLine();
+                if(linha == null){
+                    return matrizDeCusto;
+                }
+
+                linha = linha.trim();
+                arrayDeCustosDaLinha = linha.trim().split("\\s+");
+                listDeCustosDaLinha=(new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha)));
+            }
+
+
+
+
+        }
         return matrizDeCusto;
 
     }

@@ -1,0 +1,5 @@
+N=5   Tipo=1  (matriz simétrica) Primeira_Linha: A(1,2) até A(1,29)  ... última: A(28,29)
+23 34 12 2
+32 33 47
+ 8 13
+65
