@@ -9,13 +9,13 @@ import java.util.ArrayList;
 
 public  class MatrizDeCusto {
     public static final int custoInfinito = 999;
-    private int[][] matrizDistancia;
+    private double[][] matrizDistancia;
     private String tipoValor, tipoNome;
     private int n;
 
     public MatrizDeCusto(int n) {
         this.n = n;
-        matrizDistancia = new int[n][n];
+        matrizDistancia = new double[n][n];
     }
 
     public final String getTipoValor() {
@@ -42,12 +42,12 @@ public  class MatrizDeCusto {
         this.n = n;
     }
 
-    public void addCusto(int i, int j, int custo) {
+    public void addCusto(int i, int j, double custo) {
         matrizDistancia[i][j] = custo;
 
     }
 
-    public int getCusto(int i, int j) {
+    public double getCusto(int i, int j) {
         return matrizDistancia[i][j];
     }
 
@@ -87,9 +87,9 @@ public  class MatrizDeCusto {
 
 
 
-    public int custoDoCiclo(ArrayList<Integer>ciclo ){
+    public double custoDoCiclo(ArrayList<Integer>ciclo ){
         //todo fazer uma soma do jeito que o professor disse, sem precisar passar por todo ciclo.
-        int custoDoCiclo = 0;
+        double custoDoCiclo = 0;
 
         for(int i=0;i<ciclo.size();i++){
             if(i==ciclo.size()-1){

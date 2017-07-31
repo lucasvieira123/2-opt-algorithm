@@ -18,15 +18,16 @@ public final class GrafoApplication extends Application {
     private String valorTipo;
     private String tipoNome;
     private MatrizDeCusto mMatrizDeCusto;
-    private int mCustoAtual;
+    private double mCustoAtual;
     private ArrayList<Integer> mCicloDeMudancas =new ArrayList<>();
     private ArrayList<Integer> mCicloBackUp = new ArrayList<>();
-    private int mPossivelCusto;
+    private double mPossivelCusto;
     private boolean jaPassouPeloZero;
     private boolean zeroFoiAdicionado;
-    private int custoAtualBackUp;
+    private double custoAtualBackUp;
     private int countDeMesmoCusto;
-
+    private ArrayList eixoX;
+    private ArrayList eixoY;
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
@@ -47,13 +48,13 @@ public final class GrafoApplication extends Application {
 
         for( int y =0; y< 100 ; y++){
 
-                if(estaGerandoMesmoCustoCincoVezes()){
-                    long endTime   = System.currentTimeMillis();
-                    long totalTime = endTime - startTime;
-                    System.out.println("TempoTotal:"+totalTime+"ms");
+            if(estaGerandoMesmoCustoCincoVezes()){
+                long endTime   = System.currentTimeMillis();
+                long totalTime = endTime - startTime;
+                System.out.println("TempoTotal:"+totalTime+"ms");
 
-                    System.exit(0);
-                }
+                System.exit(0);
+            }
 
             for(int i = 1; i<n; i++){
                 //  outloop:
@@ -235,7 +236,7 @@ public final class GrafoApplication extends Application {
 
             }else if(valorTipo.contains("1")){
                 System.out.println("Tipo 1");
-               return criarMatrizDeCustoParaTipo1(linha,matrizDeCusto,br);
+                return criarMatrizDeCustoParaTipo1(linha,matrizDeCusto,br);
 
             }else if (valorTipo.contains("2")){
                 System.out.println("Tipo 2");
@@ -269,7 +270,7 @@ public final class GrafoApplication extends Application {
 
             for (int valorDaColunaAtual = 0; valorDaColunaAtual < n; valorDaColunaAtual++) {
                 try {
-                    int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
+                    Double custoAresta = Double.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
                     matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
                 } catch (IndexOutOfBoundsException e) {
 
@@ -277,7 +278,7 @@ public final class GrafoApplication extends Application {
                     linha = linha.trim();
                     arrayDeCustosDaLinha = linha.trim().split("\\s+");
                     listDeCustosDaLinha.addAll(new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha)));
-                    int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
+                    Double custoAresta = Double.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
                     matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
                 }
 
@@ -291,36 +292,50 @@ public final class GrafoApplication extends Application {
 
     }
 
-    private MatrizDeCusto criarMatrizDeCustoParaTipo2(String linha, MatrizDeCusto matrizDeCusto, BufferedReader br) {
-      /*  while (linha != null && !linha.equals("")) {
-            linha = linha.trim();
+    private MatrizDeCusto criarMatrizDeCustoParaTipo2(String linha, MatrizDeCusto matrizDeCusto, BufferedReader br) throws IOException {
+        eixoX = new ArrayList<>();
+        eixoY = new ArrayList<>();
 
+        System.out.println("Tipo 2");
+        while (linha != null && !linha.equals("")) {
             String[] arrayDeCustosDaLinha = linha.trim().split("\\s+");
             ArrayList<String> listDeCustosDaLinha = new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha));
+                  /*  try {*/
+            Double x = Double.valueOf(listDeCustosDaLinha.get(0));
+            eixoX.add(x);
+            Double y = Double.valueOf(listDeCustosDaLinha.get(1));
+            eixoY.add(y);
 
-
-            for (int valorDaColunaAtual = 0; valorDaColunaAtual < n; valorDaColunaAtual++) {
-                try {
-                    int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
-                    matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
-                } catch (IndexOutOfBoundsException e) {
-
-                    linha = br.readLine();
-                    linha = linha.trim();
-                    arrayDeCustosDaLinha = linha.trim().split("\\s+");
-                    listDeCustosDaLinha.addAll(new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha)));
-                    int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(valorDaColunaAtual));
-                    matrizDeCusto.addCusto(valorDaLinhaAtual, valorDaColunaAtual, custoAresta);
-                }
-
-            }
-            n--;
             linha = br.readLine();
-            valorDaLinhaAtual++;
 
-        }*/
-      return matrizDeCusto;
+                    /*} catch (IndexOutOfBoundsException e) {
+                        linha = br.readLine();
+                        linha = linha.trim();
+                        arrayDeCustosDaLinha = linha.trim().split("\\s+");
+                        listDeCustosDaLinha.addAll(new ArrayList<>(Arrays.asList(arrayDeCustosDaLinha)));
+                        int custoAresta = Integer.valueOf(listDeCustosDaLinha.get(contador));
+
+                    }*/
+
+        }
+        for(int i = 0; i<n; i++){
+            double varX1 = (double) eixoX.get(i);
+            double varY1 = (double) eixoY.get(i);
+            double varXn = 0;
+            double varYn = 0;
+
+            for(int j = 0; j<n; j++){
+                varXn = (double) eixoX.get(j);
+                varYn = (double) eixoY.get(j);
+                matrizDeCusto.addCusto(i,j, distancianDePontos(varX1,varY1,varXn,varYn));
+            }
+
+        }
+        matrizDeCusto.print();
+        return matrizDeCusto;
     }
+
+
 
     private MatrizDeCusto criarMatrizDeCustoParaTipo1(String linha, MatrizDeCusto matrizDeCusto, BufferedReader br) throws IOException {
 
@@ -367,12 +382,12 @@ public final class GrafoApplication extends Application {
     private void printPercurso(ArrayList<Integer> trilha) {
         int contador =0;
         for (int v : trilha) {
-            System.out.print(v+"->");
+            System.out.print(v+1+"->");
             contador++;
         }
 
         if(contador==trilha.size()){
-            System.out.print(trilha.get(0));
+            System.out.print(trilha.get(0)+1);
         }
         System.out.println();
 
@@ -385,6 +400,13 @@ public final class GrafoApplication extends Application {
         return linha.contains("N");
     }
 
+    private double distancianDePontos(double x1, double y1, double x2, double y2){
+        double resul1 = Math.pow((x1-x2), 2);
+        double resul2 = Math.pow((y1-y2), 2);
+        double resul3 = Math.sqrt(resul1+resul2);
+        double distancia = resul3;
+        return   distancia;
+    }
 
     public File abrirChooserParaSelecionarArquivo() {
         primaryStage.setTitle("Escolha o arquivo");
